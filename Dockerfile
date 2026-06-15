@@ -29,11 +29,17 @@ RUN git clone https://github.com/devkitPro/wut.git \
     && mkdir -p dist \
     && cd wut/samples/cmake \
     && for sample in custom_default_heap erreula gx2_triangle helloworld helloworld_cpp my_first_rpl swkbd; do \
-            echo "Building $sample..." \
-            && cd "$sample" \
-            && mkdir build && cd build \
-            && powerpc-eabi-cmake .. \
-            && make \
-            && find . -maxdepth 1 -type f \( -name "*.rpx" -o -name "*.rpl" -o -name "*.elf" \) -exec cp {} /work/dist/ \; \
-            && cd ../..; \
-        done
+         echo "Building $sample..." \
+         && cd "$sample" \
+         && mkdir build && cd build \
+         && powerpc-eabi-cmake .. \
+         && make \
+         && find . -maxdepth 1 -type f \( -name "*.rpx" -o -name "*.rpl" -o -name "*.elf" \) -exec cp {} /work/dist/ \; \
+         && for rpx in *.rpx; do \
+              if [ -f "$rpx" ]; then \
+                name=$(basename "$rpx" .rpx); \
+                wuhbtool "$rpx" "/work/dist/${name}.wuhb" --name "$name"; \
+              fi; \
+            done \
+         && cd ../..; \
+       done
